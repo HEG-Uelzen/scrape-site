@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
+import requests
 
+from bs4 import BeautifulSoup
 import feedparser
 
 def main():
@@ -12,24 +14,37 @@ def main():
     feeditems = feed['entries']
 
     # create directory for later downloaded data
-    datapath = os.path.join(CURRENT_DIR, "data")
-    print(datapath)
+    datapath = "./data" # os.path.join(CURRENT_DIR, "data")
 
     # iterate over feed items to fetch them
     for item in feeditems:
         # create directory for the post
-        dirname = item.title.replace(" ", "_")
-        newpath = os.path.join(datapath, dirname)
+        dirname = item.id.replace(" at https://heg-uelzen.de/hpp", "") + "--" + item.title.replace(" ", "_") 
+        newpath = datapath + "/" + dirname # os.path.join(datapath, dirname)
         try: 
-            os.makedirs(newpath, 0o666)
-            print("Directory '% s' created" % newpath)
+            os.makedirs(newpath, 0o777)
+            print("Created Directory '% s' " % newpath)
         except OSError as error: 
-            print(error)  
+            print(error)
 
-        # write post content to (txt) file
+        # get & write post content to (txt) file
+        res = requests.get(item.link)
+        soup = BeautifulSoup(res.content, 'html.parser')
+        title = soup.title.text.replace(" | Herzog-Ernst-Gymnasium", "")
+        content = soup.find('div', class_="node__content")
+
+        try:
+            with open(newpath + "/" + "output.txt", "w+") as output_file:
+                output_file.write(str(content))
+                output_file.close()
+                print("Wrote output.txt file for '% s'" % title)
+        except OSError as error:
+            print(error)
+
 
         # get image of the post and download it into the directory
 
+    print("Finished!")
     
 
 
