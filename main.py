@@ -34,15 +34,28 @@ def main():
         content = soup.find('div', class_="node__content")
 
         try:
-            with open(newpath + "/" + "output.txt", "w+") as output_file:
+            with open(newpath + "/" + "_post.html", "w+") as output_file:
                 output_file.write(str(content))
                 output_file.close()
-                print("Wrote output.txt file for '% s'" % title)
+                print("Wrote output file for '% s'" % title)
         except OSError as error:
             print(error)
 
 
-        # get image of the post and download it into the directory
+        # get files included in the post
+        link_elements = content.find_all('a')
+        for element in link_elements:
+            # extraction of pdf files
+            if ".pdf" in element.get('href'):
+                link = "https://heg-uelzen.de" + element.get('href')
+                filename = link.split("/")[-1]
+                response = requests.get(link)
+                pdf = open(newpath + "/" +filename, "wb")
+                pdf.write(response.content)
+                pdf.close()
+                print("File " + filename + " downloaded")
+
+            # TODO: extraction of image files
 
     print("Finished!")
     
