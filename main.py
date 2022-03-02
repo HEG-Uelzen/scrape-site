@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import requests
+import wget
 
 from bs4 import BeautifulSoup
 import feedparser
@@ -56,8 +57,16 @@ def main():
                 pdf.close()
                 print("File " + filename + " downloaded")
 
-        # TODO: extraction of image files
+        # extraction of image files
         image_elements = content.find_all('img')
+        for image in image_elements:
+            image_link = "https://heg-uelzen.de" + \
+                image.get('src').split("?")[0]
+            img_filename = image_link.split("/")[-1]
+            img_download = wget.download(image_link, out=newpath + "/" + img_filename)
+            print("\nDownloaded image: " + img_download)
+        
+        print("\n")
 
     print("Finished!")
 
