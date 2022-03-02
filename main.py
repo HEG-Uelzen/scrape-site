@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 import feedparser
 
+
 def main():
     CURRENT_DIR = str(Path.cwd().absolute())
     FEED_URL = "https://heg-uelzen.de/hpp/rss.xml"
@@ -14,17 +15,18 @@ def main():
     feeditems = feed['entries']
 
     # create directory for later downloaded data
-    datapath = "./data" # os.path.join(CURRENT_DIR, "data")
+    datapath = "./data"  # os.path.join(CURRENT_DIR, "data")
 
     # iterate over feed items to fetch them
     for item in feeditems:
         # create directory for the post
-        dirname = item.id.replace(" at https://heg-uelzen.de/hpp", "") + "--" + item.title.replace(" ", "_") 
-        newpath = datapath + "/" + dirname # os.path.join(datapath, dirname)
-        try: 
+        dirname = item.id.replace(
+            " at https://heg-uelzen.de/hpp", "") + "--" + item.title.replace(" ", "_")
+        newpath = datapath + "/" + dirname  # os.path.join(datapath, dirname)
+        try:
             os.makedirs(newpath, 0o777)
             print("Created Directory '% s' " % newpath)
-        except OSError as error: 
+        except OSError as error:
             print(error)
 
         # get & write post content to (txt) file
@@ -41,7 +43,6 @@ def main():
         except OSError as error:
             print(error)
 
-
         # get files included in the post
         link_elements = content.find_all('a')
         for element in link_elements:
@@ -50,15 +51,15 @@ def main():
                 link = "https://heg-uelzen.de" + element.get('href')
                 filename = link.split("/")[-1]
                 response = requests.get(link)
-                pdf = open(newpath + "/" +filename, "wb")
+                pdf = open(newpath + "/" + filename, "wb")
                 pdf.write(response.content)
                 pdf.close()
                 print("File " + filename + " downloaded")
 
-            # TODO: extraction of image files
+        # TODO: extraction of image files
+        image_elements = content.find_all('img')
 
     print("Finished!")
-    
 
 
 if __name__ == "__main__":
