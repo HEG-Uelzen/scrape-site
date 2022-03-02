@@ -63,9 +63,10 @@ def main():
             image_link = "https://heg-uelzen.de" + \
                 image.get('src').split("?")[0]
             img_filename = image_link.split("/")[-1]
-            img_download = wget.download(image_link, out=newpath + "/" + img_filename)
+            img_download = wget.download(
+                image_link, out=newpath + "/" + img_filename)
             print("\nDownloaded image: " + img_download)
-        
+
         print("\n")
 
     print("Finished!")
